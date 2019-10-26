@@ -1,23 +1,21 @@
-const argv = require('minimist')(process.argv.slice(2));
+// const argv = require('minimist')(process.argv.slice(2));
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
 
 const axios = require('axios');
 
+const port = process.env.PORT || 3000;
+
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-const listenPort = argv.port;
 
 //https://www.worldcoinindex.com/apiservice/v2getmarkets?key=kLrrpre9ySdJ5mXyMFj1lKiqr4pIkv&fiat=USD
 //https://www.worldcoinindex.com/apiservice/ticker?key=kLrrpre9ySdJ5mXyMFj1lKiqr4pIkv&label=btcbtc-ethbtc-ltcbtc-xrpbtc&fiat=usd
-//fiat = value of coin in this denomination, ie BTC or USD 
-// api key 
 
-// naming convention = coin-btc
 const apiKey = 'kLrrpre9ySdJ5mXyMFj1lKiqr4pIkv';
 
 let marketsUSD = null;
@@ -30,15 +28,15 @@ const getMarketData = fiat => {
     });
 }
 
-// Promise.all([getMarketData('USD'), getMarketData('BTC')])
-//   .then(result => {
-//     marketsUSD = result[0];
-//     marketsBTC = result[1];
-//   })
+Promise.all([getMarketData('USD'), getMarketData('BTC')])
+  .then(result => {
+    marketsUSD = result[0];
+    marketsBTC = result[1];
+  })
 
-// let intervalHandler = setInterval(() => {
-//   getMarketData();
-// }, 60000 * 5);
+let intervalHandler = setInterval(() => {
+  getMarketData();
+}, 60000 * 5);
 
 /*
 Label: "007/USD"
@@ -51,6 +49,10 @@ Timestamp: 1569759060
 ​​​​​​
 Volume_24h: 0
 */
+
+app.get('/', function (req, res) {
+  res.send(JSON.stringify({ Hello: 'World' }));
+});
 
 app.get('/market/', (req, res) => {
   if (req.query.fiat === 'USD') {
@@ -68,15 +70,8 @@ app.get('/images/:coinName', (req, res) => {
 
 
 
-
-
-
-
-
-
-
-app.listen(listenPort, () => {
-  console.log(`Server listening on port ${listenPort}...`)
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}...`)
 });
 
 
